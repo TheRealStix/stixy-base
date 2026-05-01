@@ -82,6 +82,8 @@ public:
     const float             mScrollAccel = 0.1f;
     float					mMaxScrollPosition;
     SeedType                mPreviousType;
+	Plant*                  mPlantPreview;
+    SeedType                mPreviewSeed;
 
 
 public:
@@ -131,6 +133,7 @@ public:
     Zombie*                 ZombieHitTest(int x, int y);
     bool                    IsOverImitater(int x, int y);
     void                    ResizeSlider();
+	void                    SetupPlantPreview();
 };
 
 #endif

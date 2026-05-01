@@ -20,8 +20,9 @@
 #include "../../Sexy.TodLib/TodStringFile.h"
 #include "../../SexyAppFramework/WidgetManager.h"
 #include "../../SexyAppFramework/Slider.h"
+#include "../System/PoolEffect.h"
 
-const Rect cSeedClipRect = Rect(0, 123, BOARD_WIDTH, 420 + SEED_CHOOSER_EXTRA_HEIGHT);
+const Rect cSeedClipRect = Rect(0, 303, BOARD_WIDTH, 238 + SEED_CHOOSER_EXTRA_HEIGHT);
 const int cSeedPacketYOffset = 2;
 const int cSeedPacketRows = 8;
 
@@ -40,6 +41,8 @@ SeedChooserScreen::SeedChooserScreen()
 	mToolTipSeed = -1;
 	mScrollAmount = 0;
 	mScrollPosition = 0;
+	mPreviewSeed = SEED_PEASHOOTER;
+	mPlantPreview = nullptr;
 
 	mStartButton = new GameButton(SeedChooserScreen::SeedChooserScreen_Start);
 	mStartButton->mLabel = _S("[LETS_ROCK_BUTTON]");
@@ -183,6 +186,7 @@ SeedChooserScreen::SeedChooserScreen()
 	mSlider->mThumbOffsetX = -14;
 	mSlider->mNoDraw = true;
 	ResizeSlider();
+	SetupPlantPreview();
 }
 
 int SeedChooserScreen::PickFromWeightedArrayUsingSpecialRandSeed(TodWeightedArray* theArray, int theCount, MTRand& theLevelRNG)
@@ -304,7 +308,7 @@ void SeedChooserScreen::GetSeedPositionInChooser(int theIndex, int& x, int& y)
 	else
 	{
 		x = theIndex % cSeedPacketRows * 53 + 22;
-		y = theIndex / cSeedPacketRows * (SEED_PACKET_HEIGHT + cSeedPacketYOffset) + (SEED_PACKET_HEIGHT + 53) - mScrollPosition;
+		y = theIndex / cSeedPacketRows * (SEED_PACKET_HEIGHT + cSeedPacketYOffset) + (SEED_PACKET_HEIGHT + 233) - mScrollPosition; //53  where seeds start
 	}
 }
 
@@ -324,6 +328,7 @@ SeedChooserScreen::~SeedChooserScreen()
 	if (mSlider) delete mSlider;
 	if (mToolTip) delete mToolTip;
 	if (mMenuButton) delete mMenuButton;
+	if (mPlantPreview) delete mPlantPreview;
 }
 
 void SeedChooserScreen::RemovedFromManager(WidgetManager* theWidgetManager)
@@ -368,10 +373,45 @@ void SeedChooserScreen::Draw(Graphics* g)
 		return;
 
 	g->DrawImage(Sexy::IMAGE_SEEDCHOOSER_BACKGROUND, 0, 87);
+	if (mPreviewSeed == SeedType::SEED_LILYPAD || mPreviewSeed == SeedType::SEED_TANGLEKELP ||
+		mPreviewSeed == SeedType::SEED_CATTAIL || mPreviewSeed == SeedType::SEED_SEASHROOM)
+	{
+		bool aNight = mPreviewSeed == SeedType::SEED_SEASHROOM;
+		g->DrawImage(aNight ? Sexy::IMAGE_SEEDCHOOSER_GROUNDNIGHTPOOL : Sexy::IMAGE_SEEDCHOOSER_GROUNDPOOL, 37, 125);
+
+		if (mApp->Is3dAccel())
+		{
+			g->SetClipRect(0, 0, 250, 380);
+			g->mTransY -= 125;
+			g->mTransX += 0;
+			mApp->mPoolEffect->PoolEffectDraw(g, aNight);
+			g->mTransY += 125;
+			g->mTransX -= 0;
+			g->ClearClipRect();
+		}
+	}
+	else
+	{
+		g->DrawImage(
+			Plant::IsNocturnal(mPreviewSeed) || mPreviewSeed == SeedType::SEED_GRAVEBUSTER || mPreviewSeed == SeedType::SEED_PLANTERN ? Sexy::IMAGE_SEEDCHOOSER_GROUNDNIGHT :
+			mPreviewSeed == SeedType::SEED_FLOWERPOT ? Sexy::IMAGE_SEEDCHOOSER_GROUNDROOF : Sexy::IMAGE_SEEDCHOOSER_GROUNDDAY,
+			37, 125);
+	}
+	g->DrawImage(Sexy::IMAGE_SEEDCHOOSER_PLANTCARD, 0, 125);
 	if (mApp->SeedTypeAvailable(SEED_IMITATER))
 		g->DrawImage(Sexy::IMAGE_SEEDCHOOSER_IMITATERADDON, IMITATER_POS_X, IMITATER_POS_Y + SEED_CHOOSER_EXTRA_HEIGHT);
-
 	TodDrawString(g, _S("[CHOOSE_YOUR_PLANTS]"), 229, 110, Sexy::FONT_DWARVENTODCRAFT18YELLOW, Color::White, DS_ALIGN_CENTER);
+	if (mPlantPreview)
+	{
+		Graphics aPlantGraphics = Graphics(*g);
+		mPlantPreview->BeginDraw(&aPlantGraphics);
+		mPlantPreview->Draw(&aPlantGraphics);
+	}
+	PlantDefinition& aPlantDef = GetPlantDefinition(mPreviewSeed);
+	SexyString aName = Plant::GetNameString(mPreviewSeed, SEED_NONE);
+	TodDrawString(g, aName, 136, 286, Sexy::FONT_DWARVENTODCRAFT18YELLOW, Color::White, DS_ALIGN_CENTER);
+	TodDrawStringWrapped(g, StrFormat(_S("[%s_TOOLTIP]"), aPlantDef.mPlantName), Rect(266, 142, 155, 210), Sexy::FONT_BRIANNETOD12, Color(40, 50, 90), DS_ALIGN_LEFT);
+
 	mSlider->SliderDraw(g);
 	for (SeedType aSeedType = SEED_PEASHOOTER; aSeedType < NUM_SEEDS_IN_CHOOSER; aSeedType = (SeedType)(aSeedType + 1))
 	{
@@ -615,8 +655,10 @@ void SeedChooserScreen::Update()
 	mAlmanacButton->Update();
 	mStoreButton->Update();
 	mMenuButton->Update();
+	if (mPlantPreview) mPlantPreview->Update();
 	UpdateViewLawn();
 	UpdateCursor();
+	if(!mApp->GetDialog(DIALOG_ALMANAC))mApp->mPoolEffect->PoolEffectUpdate();
 	MarkDirty();
 }
 
@@ -919,6 +961,8 @@ void SeedChooserScreen::ClickedSeedInBank(ChosenSeed& theChosenSeed)
 	//mSeedsInFlight++;
 	RemoveToolTip();
 	EnableStartButton(false);
+	mPreviewSeed = theChosenSeed.mSeedType;
+	SetupPlantPreview();
 	mApp->PlaySample(Sexy::SOUND_TAP);
 
 }
@@ -947,6 +991,8 @@ void SeedChooserScreen::ClickedSeedInChooser(ChosenSeed& theChosenSeed)
 	mSeedsInBank++;
 
 	RemoveToolTip();
+	mPreviewSeed = theChosenSeed.mSeedType;
+	SetupPlantPreview();
 	mApp->PlaySample(Sexy::SOUND_TAP);
 	if (mSeedsInBank == mBoard->mSeedBank->mNumPackets)
 		EnableStartButton(true);
@@ -1037,12 +1083,14 @@ void SeedChooserScreen::ShowToolTip()
 			if (aSeedType == SEED_IMITATER)
 			{
 				mToolTip->SetTitle(Plant::GetNameString(aSeedType, aChosenSeed.mImitaterType));
-				mToolTip->SetLabel(Plant::GetToolTip(aChosenSeed.mImitaterType == SEED_NONE ? SEED_IMITATER : aChosenSeed.mImitaterType));
+				mToolTip->SetLabel(_S(""));
+				//mToolTip->SetLabel(Plant::GetToolTip(aChosenSeed.mImitaterType == SEED_NONE ? SEED_IMITATER : aChosenSeed.mImitaterType));
 			}
 			else
 			{
 				mToolTip->SetTitle(Plant::GetNameString(aSeedType, SEED_NONE));
-				mToolTip->SetLabel(Plant::GetToolTip(aSeedType));
+				mToolTip->SetLabel(_S(""));
+				//mToolTip->SetLabel(Plant::GetToolTip(aSeedType));
 			}
 
 			int aSeedX, aSeedY;
@@ -1311,4 +1359,30 @@ void SeedChooserScreen::SliderVal(int theId, double theVal)
 		mScrollPosition = theVal * mMaxScrollPosition;
 		break;
 	}
+}
+
+void SeedChooserScreen::SetupPlantPreview() {
+
+	if (mPlantPreview != nullptr && mPlantPreview->mSeedType == mPreviewSeed)
+		return;
+
+	float aPosX = 94;
+	float aPosY = 158;
+
+	switch (mPreviewSeed)
+	{
+	case SEED_TALLNUT: aPosY += 18; break;
+	case SEED_COBCANNON: aPosX -= 30; break;
+	case SEED_FLOWERPOT: aPosY -= 20; break;
+	case SEED_LILYPAD: aPosY -= 10; break;
+	case SEED_INSTANT_COFFEE: aPosY += 5; break;
+	case SEED_GRAVEBUSTER: aPosY += 50; aPosX += 5; break;
+	}
+
+	mPlantPreview = new Plant();
+	mPlantPreview->mBoard = nullptr;
+	mPlantPreview->mIsOnBoard = false;
+	mPlantPreview->PlantInitialize(0, 0, mPreviewSeed, SEED_NONE);
+	mPlantPreview->mX = aPosX;
+	mPlantPreview->mY = aPosY;
 }

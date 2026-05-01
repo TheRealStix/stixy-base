@@ -85,12 +85,18 @@
 
 <!-- Screens -->
 <Image id="SEEDCHOOSER_BACKGROUND" path="SeedChooser_BackGround"  />
+<Image id="SEEDCHOOSER_GROUNDDAY" path="SeedChooser_GroundDay"  />
+<Image id="SEEDCHOOSER_GROUNDNIGHT" path="SeedChooser_GroundNight"  />
+<Image id="SEEDCHOOSER_GROUNDPOOL" path="SeedChooser_GroundPool"  />
+<Image id="SEEDCHOOSER_GROUNDNIGHTPOOL" path="SeedChooser_GroundNightPool"  />
+<Image id="SEEDCHOOSER_GROUNDROOF" path="SeedChooser_GroundRoof"  />
 <Image id="SEEDCHOOSER_BUTTON" path="SeedChooser_Button" />
 <Image id="SEEDCHOOSER_BUTTON_DISABLED" path="SeedChooser_Button_Disabled" />
 <Image id="SEEDCHOOSER_BUTTON_GLOW" path="SeedChooser_Button_Glow" />
 <Image id="SEEDCHOOSER_BUTTON2" path="SeedChooser_Button2" />
 <Image id="SEEDCHOOSER_BUTTON2_GLOW" path="SeedChooser_Button2_Glow" />
-<Image id="SEEDCHOOSER_IMITATERADDON" path="SeedChooser_ImitaterAddOn" />  
+<Image id="SEEDCHOOSER_IMITATERADDON" path="SeedChooser_ImitaterAddOn" />
+<Image id="SEEDCHOOSER_PLANTCARD" path="SeedChooser_PlantCard" />
 <Image id="SEEDS" path="seeds" cols="10" />
 <Image id="CONSOLE_SEEDS" path="console_seeds" cols="10" />
 <Image id="SEEDPACKET_LARGER" path="SeedPacket_Larger" />
