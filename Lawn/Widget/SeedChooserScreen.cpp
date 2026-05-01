@@ -22,7 +22,7 @@
 #include "../../SexyAppFramework/Slider.h"
 #include "../System/PoolEffect.h"
 
-const Rect cSeedClipRect = Rect(0, 303, BOARD_WIDTH, 238 + SEED_CHOOSER_EXTRA_HEIGHT);
+const Rect cSeedClipRect = Rect(10, 294, 445, 252 + SEED_CHOOSER_EXTRA_HEIGHT);
 const int cSeedPacketYOffset = 2;
 const int cSeedPacketRows = 8;
 
@@ -54,7 +54,7 @@ SeedChooserScreen::SeedChooserScreen()
 	mStartButton->SetFont(Sexy::FONT_DWARVENTODCRAFT18YELLOW);
 	mStartButton->mColors[ButtonWidget::COLOR_LABEL] = Color::White;
 	mStartButton->mColors[ButtonWidget::COLOR_LABEL_HILITE] = Color::White;
-	mStartButton->Resize(154, 545 + SEED_CHOOSER_EXTRA_HEIGHT, 156, 42);
+	mStartButton->Resize(154, 552 + SEED_CHOOSER_EXTRA_HEIGHT, 156, 42);
 	mStartButton->mTextOffsetY = -1;
 	EnableStartButton(false);
 	mStartButton->mParentWidget = this;
@@ -308,7 +308,7 @@ void SeedChooserScreen::GetSeedPositionInChooser(int theIndex, int& x, int& y)
 	else
 	{
 		x = theIndex % cSeedPacketRows * 53 + 22;
-		y = theIndex / cSeedPacketRows * (SEED_PACKET_HEIGHT + cSeedPacketYOffset) + (SEED_PACKET_HEIGHT + 233) - mScrollPosition; //53  where seeds start
+		y = theIndex / cSeedPacketRows * (SEED_PACKET_HEIGHT + cSeedPacketYOffset) + (SEED_PACKET_HEIGHT + 231) - mScrollPosition; //53  where seeds start
 	}
 }
 
@@ -397,16 +397,16 @@ void SeedChooserScreen::Draw(Graphics* g)
 			mPreviewSeed == SeedType::SEED_FLOWERPOT ? Sexy::IMAGE_SEEDCHOOSER_GROUNDROOF : Sexy::IMAGE_SEEDCHOOSER_GROUNDDAY,
 			37, 125);
 	}
-	g->DrawImage(Sexy::IMAGE_SEEDCHOOSER_PLANTCARD, 0, 125);
-	if (mApp->SeedTypeAvailable(SEED_IMITATER))
-		g->DrawImage(Sexy::IMAGE_SEEDCHOOSER_IMITATERADDON, IMITATER_POS_X, IMITATER_POS_Y + SEED_CHOOSER_EXTRA_HEIGHT);
-	TodDrawString(g, _S("[CHOOSE_YOUR_PLANTS]"), 229, 110, Sexy::FONT_DWARVENTODCRAFT18YELLOW, Color::White, DS_ALIGN_CENTER);
 	if (mPlantPreview)
 	{
 		Graphics aPlantGraphics = Graphics(*g);
 		mPlantPreview->BeginDraw(&aPlantGraphics);
 		mPlantPreview->Draw(&aPlantGraphics);
 	}
+	g->DrawImage(Sexy::IMAGE_SEEDCHOOSER_PLANTCARD, 0, 125);
+	if (mApp->SeedTypeAvailable(SEED_IMITATER))
+	g->DrawImage(Sexy::IMAGE_SEEDCHOOSER_IMITATERADDON, IMITATER_POS_X, IMITATER_POS_Y + SEED_CHOOSER_EXTRA_HEIGHT);
+	TodDrawString(g, _S("[CHOOSE_YOUR_PLANTS]"), 229, 110, Sexy::FONT_DWARVENTODCRAFT18YELLOW, Color::White, DS_ALIGN_CENTER);
 	PlantDefinition& aPlantDef = GetPlantDefinition(mPreviewSeed);
 	SexyString aName = Plant::GetNameString(mPreviewSeed, SEED_NONE);
 	TodDrawString(g, aName, 136, 286, Sexy::FONT_DWARVENTODCRAFT18YELLOW, Color::White, DS_ALIGN_CENTER);
@@ -481,6 +481,26 @@ void SeedChooserScreen::Draw(Graphics* g)
 			DrawSeedPacket(g, aChosenSeed.mX, aChosenSeed.mY, aChosenSeed.mSeedType, aChosenSeed.mImitaterType, 0, 255, true, false);
 		}
 	}
+
+	//mask
+	g->SetClipRect(cSeedClipRect);
+	int fadeHeight = 5;
+	float t = mSlider->mVal;
+	float topStrength = (t <= 0.0f) ? 0.0f : powf(t, 0.25f);
+	float bottomStrength = (t >= 1.0f) ? 0.0f : powf(1.0f - t, 0.25f);
+	for (int i = 0; i < fadeHeight; i++)
+	{
+		int baseAlphaTop = (int)((180 - i * 35) * topStrength);
+		int baseAlphaBottom = (int)((180 - i * 35) * bottomStrength);
+		int inset = fadeHeight - i - 1;
+		int x = cSeedClipRect.mX + inset;
+		int w = cSeedClipRect.mWidth - inset * 2;
+		g->SetColor(Color(0, 0, 0, baseAlphaTop));
+		g->FillRect(x,cSeedClipRect.mY + i,w,1);
+		g->SetColor(Color(0, 0, 0, baseAlphaBottom));
+		g->FillRect(x,cSeedClipRect.mY + cSeedClipRect.mHeight - 1 - i,w,1);
+	}
+	g->ClearClipRect();
 
 	int aNumSeedsInBank = mBoard->mSeedBank->mNumPackets;
 	for (int anIndex = 0; anIndex < aNumSeedsInBank; anIndex++)
@@ -609,7 +629,7 @@ void SeedChooserScreen::Update()
 
 	mRandomButton->mBtnNoDraw = !mApp->mTodCheatKeys;
 	mRandomButton->mDisabled = !mApp->mTodCheatKeys;
-	mMaxScrollPosition = max(0, (((NUM_SEEDS_IN_CHOOSER - 2) / cSeedPacketRows) * (SEED_PACKET_HEIGHT + cSeedPacketYOffset)) + SEED_PACKET_HEIGHT - cSeedClipRect.mHeight);
+	mMaxScrollPosition = max(0, (((NUM_SEEDS_IN_CHOOSER - 2) / cSeedPacketRows) * (SEED_PACKET_HEIGHT + cSeedPacketYOffset)) + SEED_PACKET_HEIGHT - cSeedClipRect.mHeight + 14);
 	mSlider->mVisible = mMaxScrollPosition != 0;
 	if (mSlider->mVisible)
 	{
@@ -655,7 +675,7 @@ void SeedChooserScreen::Update()
 	mAlmanacButton->Update();
 	mStoreButton->Update();
 	mMenuButton->Update();
-	if (mPlantPreview) mPlantPreview->Update();
+	if (mPlantPreview && !mApp->mBoard->mPaused) mPlantPreview->Update();
 	UpdateViewLawn();
 	UpdateCursor();
 	if(!mApp->GetDialog(DIALOG_ALMANAC))mApp->mPoolEffect->PoolEffectUpdate();
@@ -1371,12 +1391,17 @@ void SeedChooserScreen::SetupPlantPreview() {
 
 	switch (mPreviewSeed)
 	{
-	case SEED_TALLNUT: aPosY += 18; break;
+	case SEED_TALLNUT: aPosY += 16; break;
 	case SEED_COBCANNON: aPosX -= 30; break;
 	case SEED_FLOWERPOT: aPosY -= 20; break;
-	case SEED_LILYPAD: aPosY -= 10; break;
+	case SEED_LILYPAD:
+	case SEED_TANGLEKELP: 
+	case SEED_SEASHROOM: aPosY -= 5; break;
 	case SEED_INSTANT_COFFEE: aPosY += 5; break;
 	case SEED_GRAVEBUSTER: aPosY += 50; aPosX += 5; break;
+	case SEED_SCAREDYSHROOM: aPosY += 8; aPosX += 6; break;
+	case SEED_MELONPULT:
+	case SEED_WINTERMELON: aPosY += 8; break;
 	}
 
 	mPlantPreview = new Plant();
