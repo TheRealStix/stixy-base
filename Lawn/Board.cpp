@@ -166,7 +166,7 @@ Board::Board(LawnApp* theApp)
 	mMenuButton->mParentWidget = this;
 	int aButtonOffsetX = BOARD_ADDITIONAL_WIDTH * 2;
 	mFastButton = new GameButton(2);
-	mFastButton->Resize(740 + aButtonOffsetX, 30, IMAGE_FASTBUTTON->mWidth, 46);
+	mFastButton->Resize(636 + aButtonOffsetX, 2, IMAGE_FASTBUTTON->mWidth, 46);
 	mFastButton->mParentWidget = this;
 	mFastButton->mButtonImage = IMAGE_FASTBUTTON; //WIDETWEAK: fixes a frame perfect crash apparently
 	mStoreButton = nullptr;
@@ -185,19 +185,19 @@ Board::Board(LawnApp* theApp)
 	if (mApp->mGameMode == GameMode::GAMEMODE_CHALLENGE_ZEN_GARDEN || mApp->mGameMode == GameMode::GAMEMODE_TREE_OF_WISDOM)
 	{
 		mMenuButton->mLabel = _S("[MAIN_MENU_BUTTON]");
-		mMenuButton->Resize(628 + aButtonOffsetX, -10, 163, 46);
+		mMenuButton->Resize(628 + aButtonOffsetX, 1, 163, 46);
 
 		mStoreButton = new GameButton(1);
 		mStoreButton->mButtonImage = IMAGE_ZENSHOPBUTTON;
 		mStoreButton->mOverImage = IMAGE_ZENSHOPBUTTON_HIGHLIGHT;
 		mStoreButton->mDownImage = IMAGE_ZENSHOPBUTTON_HIGHLIGHT;
-		mStoreButton->Resize(678 + aButtonOffsetX, 33, IMAGE_ZENSHOPBUTTON->mWidth, 40);
+		mStoreButton->Resize(678 + aButtonOffsetX, 44, IMAGE_ZENSHOPBUTTON->mWidth, 40);
 		mStoreButton->mParentWidget = this;
 	}
 	else
 	{
 		mMenuButton->mLabel = _S("[MENU_BUTTON]");
-		mMenuButton->Resize(681 + aButtonOffsetX, -10, 117, 46);
+		mMenuButton->Resize(681 + aButtonOffsetX, 1, 117, 46);
 		mFastButton->mBtnNoDraw = true;
 	}
 
@@ -213,7 +213,7 @@ Board::Board(LawnApp* theApp)
 	if (mApp->mGameMode == GameMode::GAMEMODE_UPSELL)
 	{
 		mMenuButton->mLabel = _S("[MAIN_MENU_BUTTON]");
-		mMenuButton->Resize(628 + aButtonOffsetX, -10, 163, 46);
+		mMenuButton->Resize(628 + aButtonOffsetX, 1, 163, 46);
 		mMenuButton->mBtnNoDraw = true;
 
 		mStoreButton = new GameButton(1);
@@ -4315,6 +4315,8 @@ void Board::MouseDown(int x, int y, int theClickCount)
 	if (mFastButton->IsMouseOver() && CanInteractWithBoardButtons() && theClickCount > 0)
 	{
 		mApp->PlaySample(Sexy::SOUND_TAP);
+		TodParticleSystem* aSpeedScreenEffect = mApp->AddTodParticle(x, y, MakeRenderOrder(RenderLayer::RENDER_LAYER_TOP, 0, 0), ParticleEffect::PARTICLE_SCREEN_FLASH);
+		aSpeedScreenEffect->OverrideColor(nullptr, Color(255, 255, 255, 120));
 	}
 	else if (mStoreButton && mStoreButton->IsMouseOver() && CanInteractWithBoardButtons() && theClickCount > 0)
 	{
@@ -5641,9 +5643,28 @@ void Board::Update()
 
 	if (mFastButton != nullptr && !mFastButton->mBtnNoDraw)
 	{
-		mFastButton->mButtonImage = !mApp->mIsFastMode ? IMAGE_FASTBUTTON : IMAGE_FASTBUTTON_HIGHLIGHT;
-		mFastButton->mOverImage = !mApp->mIsFastMode ? IMAGE_FASTBUTTON : IMAGE_FASTBUTTON_HIGHLIGHT;
-		mFastButton->mDownImage = !mApp->mIsFastMode ? IMAGE_FASTBUTTON_HIGHLIGHT : IMAGE_FASTBUTTON;
+		if (mApp->mIsFastMode) {
+			if (mFastButton->IsButtonDown()) {
+				mFastButton->mButtonImage = IMAGE_FASTBUTTON_ACTIVE_DOWN;
+			}
+			else if (mFastButton->IsMouseOver()) {
+				mFastButton->mButtonImage = IMAGE_FASTBUTTON_ACTIVE_HIGHLIGHT;
+			}
+			else {
+				mFastButton->mButtonImage = IMAGE_FASTBUTTON_ACTIVE;
+			}
+		}
+		else {
+			if (mFastButton->IsButtonDown()) {
+				mFastButton->mButtonImage = IMAGE_FASTBUTTON_DOWN;
+			}
+			else if (mFastButton->IsMouseOver()) {
+				mFastButton->mButtonImage = IMAGE_FASTBUTTON_HIGHLIGHT;
+			}
+			else {
+				mFastButton->mButtonImage = IMAGE_FASTBUTTON;
+			}
+		}
 	}
 
 	SexyString aDetails;

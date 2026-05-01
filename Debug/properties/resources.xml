@@ -178,7 +178,11 @@
 <Image id="ZENSHOPBUTTON" path="zenshopbutton" />
 <Image id="ZENSHOPBUTTON_HIGHLIGHT" path="zenshopbutton_highlight" />
 <Image id="FASTBUTTON" path="button_speed" />
-<Image id="FASTBUTTON_HIGHLIGHT" path="button_speed_hightlight" />
+<Image id="FASTBUTTON_DOWN" path="button_speed_down" />
+<Image id="FASTBUTTON_HIGHLIGHT" path="button_speed_highlight" />
+<Image id="FASTBUTTON_ACTIVE" path="button_speed_active" />
+<Image id="FASTBUTTON_ACTIVE_DOWN" path="button_speed_active_down" />
+<Image id="FASTBUTTON_ACTIVE_HIGHLIGHT" path="button_speed_active_highlight" />
 <Image id="PRESENT" path="Present" />
 <Image id="PRESENTOPEN" path="PresentOpen" />
 <Image id="SUNFLOWER_TROPHY" path="Sunflower_trophy" cols="2" />
