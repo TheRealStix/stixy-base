@@ -74,6 +74,8 @@ public:
     PottedPlant         mPottedPlant[MAX_POTTED_PLANTS];    
     bool                mEarnedAchievements[20];
     bool                mShownedAchievements[20];
+    bool                mShowStats;
+	bool				mFavoriteSeeds[NUM_SEEDS_IN_CHOOSER];
 
 public:
     PlayerInfo();
@@ -86,6 +88,8 @@ public:
     void                LoadDetails();
     void                SaveDetails();
     /*inline*/ void     ResetChallengeRecord(GameMode theGameMode);
+	void				ToggleStatsMode();
+    void				ToggleFavoriteSeed(int theIndex);
 };
 
 #endif

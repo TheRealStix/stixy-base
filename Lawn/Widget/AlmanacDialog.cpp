@@ -15,6 +15,7 @@
 #include "../../SexyAppFramework/WidgetManager.h"
 #include "../../SexyAppFramework/Font.h"
 #include "../../SexyAppFramework/Slider.h"
+#include "SeedChooserScreen.h"
 
 int gZombieDefeated[NUM_ZOMBIE_TYPES] = { false };
 const int cSeedPacketRows = 8;
@@ -74,6 +75,31 @@ AlmanacDialog::AlmanacDialog(LawnApp* theApp) : LawnDialog(theApp, DIALOG_ALMANA
 	mIndexButton->mTextOffsetY = 1;
 	mIndexButton->mParentWidget = this;
 
+	mFavButton = new GameButton(AlmanacDialog::ALMANAC_BUTTON_FAV);
+	mFavButton->mButtonImage = !mApp->mPlayerInfo->mFavoriteSeeds[mSelectedSeed] ? Sexy::IMAGE_SEEDCHOOSER_BUTTON_FAV : Sexy::IMAGE_SEEDCHOOSER_BUTTON_FAV_ACTIVE;
+	mFavButton->mOverImage = nullptr;
+	mFavButton->mDownImage = nullptr;
+	mFavButton->mDisabledImage = Sexy::IMAGE_SEEDCHOOSER_BUTTON_FAV_DISABLED;
+	mFavButton->mOverOverlayImage = Sexy::IMAGE_SEEDCHOOSER_BUTTON_GLOW_SMALL;
+	mFavButton->Resize(715 + BOARD_ADDITIONAL_WIDTH, 106 + BOARD_OFFSET_Y, 40, 42);
+	mFavButton->mParentWidget = this;
+
+	mSkinButton = new GameButton(AlmanacDialog::ALMANAC_BUTTON_SKIN);
+	mSkinButton->mButtonImage = Sexy::IMAGE_SEEDCHOOSER_BUTTON_SKIN;
+	mSkinButton->mOverImage = nullptr;
+	mSkinButton->mDownImage = nullptr;
+	mSkinButton->mOverOverlayImage = Sexy::IMAGE_SEEDCHOOSER_BUTTON_GLOW_SMALL;
+	mSkinButton->Resize(715 + BOARD_ADDITIONAL_WIDTH, 148 + BOARD_OFFSET_Y, 40, 42);
+	mSkinButton->mParentWidget = this;
+
+	mStatsButton = new GameButton(AlmanacDialog::ALMANAC_BUTTON_STATS);
+	mStatsButton->mButtonImage = !mApp->mPlayerInfo->mShowStats ? Sexy::IMAGE_SEEDCHOOSER_BUTTON_STAT : Sexy::IMAGE_SEEDCHOOSER_BUTTON_STAT_ACTIVE;
+	mStatsButton->mOverImage = nullptr;
+	mStatsButton->mDownImage = nullptr;
+	mStatsButton->mOverOverlayImage = Sexy::IMAGE_SEEDCHOOSER_BUTTON_GLOW_SMALL;
+	mStatsButton->Resize(715 + BOARD_ADDITIONAL_WIDTH, 190 + BOARD_OFFSET_Y, 40, 42);
+	mStatsButton->mParentWidget = this;
+
 	mPlantButton = new GameButton(AlmanacDialog::ALMANAC_BUTTON_PLANT);
 	mPlantButton->mLabel = _S("[VIEW_PLANTS]");
 	mPlantButton->mButtonImage = Sexy::IMAGE_SEEDCHOOSER_BUTTON;
@@ -117,6 +143,9 @@ AlmanacDialog::~AlmanacDialog()
 {
 	if (mCloseButton)	delete mCloseButton;
 	if (mIndexButton)	delete mIndexButton;
+	if (mFavButton)		delete mFavButton;
+	if (mSkinButton)	delete mSkinButton;
+	if (mStatsButton)	delete mStatsButton;
 	if (mPlantButton)	delete mPlantButton;
 	if (mZombieButton)	delete mZombieButton;
 	delete mPlantSlider;
@@ -221,13 +250,20 @@ void AlmanacDialog::SetPage(AlmanacPage thePage)
 		mZombie->mPosY = ALMANAC_INDEXZOMBIE_POSITION_Y;
 
 		mIndexButton->mBtnNoDraw = true;
+		mFavButton->mBtnNoDraw = true;
+		mSkinButton->mBtnNoDraw = true;
+		mStatsButton->mBtnNoDraw = true;
 		mPlantButton->mBtnNoDraw = false;
 		mZombieButton->mBtnNoDraw = false;
 	}
 	else
 	{
-		if (mOpenPage == AlmanacPage::ALMANAC_PAGE_PLANTS)
+		if (mOpenPage == AlmanacPage::ALMANAC_PAGE_PLANTS) {
 			SetupPlant();
+			mFavButton->mBtnNoDraw = false;
+			mSkinButton->mBtnNoDraw = false;
+			mStatsButton->mBtnNoDraw = false;
+		}
 		else if (mOpenPage == AlmanacPage::ALMANAC_PAGE_ZOMBIES)
 			SetupZombie();
 		else return;
@@ -256,6 +292,9 @@ void AlmanacDialog::Update()
 	mLastMouseY = mApp->mWidgetManager->mLastMouseY;
 	mCloseButton->Update();
 	mIndexButton->Update();
+	mFavButton->Update();
+	mSkinButton->Update();
+	mStatsButton->Update();
 	mPlantButton->Update();
 	mZombieButton->Update();
 	if (mPlant) mPlant->Update();
@@ -301,7 +340,8 @@ void AlmanacDialog::Update()
 	{
 		ZombieType aZombieType = ZombieHitTest(mLastMouseX, mLastMouseY);
 		if (SeedHitTest(mLastMouseX, mLastMouseY) != SeedType::SEED_NONE || (aZombieType != ZOMBIE_INVALID && ZombieIsShown(aZombieType)) ||
-			mCloseButton->IsMouseOver() || mIndexButton->IsMouseOver() || mPlantButton->IsMouseOver() || mZombieButton->IsMouseOver())
+			mCloseButton->IsMouseOver() || mIndexButton->IsMouseOver() || mPlantButton->IsMouseOver() || mZombieButton->IsMouseOver() ||
+			mFavButton->IsMouseOver() || mSkinButton->IsMouseOver() || mStatsButton->IsMouseOver())
 			mApp->SetCursor(CURSOR_HAND);
 		else
 			mApp->SetCursor(CURSOR_POINTER);
@@ -407,7 +447,6 @@ void AlmanacDialog::DrawPlants(Graphics* g)
 	PlantDefinition& aPlantDef = GetPlantDefinition(mSelectedSeed);
 	SexyString aName = Plant::GetNameString(mSelectedSeed, SEED_NONE);
 	SexyString aDescriptionName = StrFormat(_S("[%s_DESCRIPTION]"), aPlantDef.mPlantName);
-	//TodDrawString(g, to_string((int)mIncrement), 32, 32, Sexy::FONT_DWARVENTODCRAFT18YELLOW, Color::White, DS_ALIGN_CENTER);
 	TodDrawString(g, aName, 617 + BOARD_ADDITIONAL_WIDTH, 288 + BOARD_OFFSET_Y, Sexy::FONT_DWARVENTODCRAFT18YELLOW, Color::White, DS_ALIGN_CENTER);
 	Font* descriptionFont = Sexy::FONT_BRIANNETOD12;
 	Color descriptionColor = Color(40, 50, 90);
@@ -418,29 +457,43 @@ void AlmanacDialog::DrawPlants(Graphics* g)
 	int textSpacing = TodDrawStringWrappedHelper(g, descriptionHeader, mDescriptionRect, descriptionFont, descriptionColor, descriptionJustification, false);
 	mDescriptionRect.mY += textSpacing;
 	mDescriptionRect.mHeight -= textSpacing;
+
+	const char* suffix = mApp->mPlayerInfo->mShowStats ? "_ADVANCED" : "";
+	SexyString stats = TranslateAndSanitize(StrFormat(_S("[%s_STATS%s]"), aPlantDef.mPlantName, suffix));
 	SexyString description = TranslateAndSanitize(StrFormat(_S("[%s_DESCRIPTION]"), aPlantDef.mPlantName));
-	textSpacing = TodDrawStringWrappedHelper(g, description, mDescriptionRect, descriptionFont, descriptionColor, descriptionJustification, false);
+	int statsSpacing = 0;
+	if (!stats.empty())
+		statsSpacing = TodDrawStringWrappedHelper(g, stats, mDescriptionRect, descriptionFont, descriptionColor, descriptionJustification, false);
+	int descSpacing = TodDrawStringWrappedHelper(g, description, mDescriptionRect, descriptionFont, descriptionColor, descriptionJustification, false);
+	int totalSpacing = statsSpacing + descSpacing;
+
 	int rectHeight;
-	if (mDescriptionRect.mHeight < textSpacing)
+	if (mDescriptionRect.mHeight < totalSpacing)
 	{
 		mIsOverDescription = mDescriptionRect.Contains(mLastMouseX, mLastMouseY);
 		mDescriptionLineSpacing = descriptionFont->GetLineSpacing();
 		int barWidth = 8;
 		int barX = mDescriptionRect.mX + mDescriptionRect.mWidth - (barWidth / 2);
 		mDescriptionRect.mWidth -= barWidth;
+
 		textSpacing = TodDrawStringWrappedHelper(g, description, mDescriptionRect, descriptionFont, descriptionColor, descriptionJustification, false);
+
 		g->SetColor(Color(143, 67, 27, 75));
 		g->FillRect(Rect(barX, mDescriptionRect.mY, barWidth, mDescriptionRect.mHeight));
-		mDescriptionMaxScroll = textSpacing - mDescriptionRect.mHeight;
+
+		mDescriptionMaxScroll = totalSpacing - mDescriptionRect.mHeight;
+
 		g->SetColor(Color(143, 67, 27));
 		int barHeight = mDescriptionRect.mHeight - mDescriptionMaxScroll;
 		float posY = mDescriptionScroll;
+
 		mDescriptionOverfill = barHeight < ALMANAC_DESCRIPTION_MIN_HEIGHT;
 		if (mDescriptionOverfill)
 		{
 			barHeight = ALMANAC_DESCRIPTION_MIN_HEIGHT;
 			posY = (mDescriptionScroll / mDescriptionMaxScroll) * (mDescriptionRect.mHeight - barHeight);
 		}
+
 		mDescriptionSliderRect = Rect(barX, mDescriptionRect.mY + posY, barWidth, barHeight);
 		g->FillRect(mDescriptionSliderRect);
 		rectHeight = textSpacing;
@@ -453,8 +506,16 @@ void AlmanacDialog::DrawPlants(Graphics* g)
 		mDescriptionMaxScroll = 0;
 		rectHeight = mDescriptionRect.mHeight;
 	}
+
 	g->SetClipRect(mDescriptionRect);
-	TodDrawStringWrapped(g, description, Rect(mDescriptionRect.mX, mDescriptionRect.mY - mDescriptionScroll, mDescriptionRect.mWidth, rectHeight), descriptionFont, descriptionColor, descriptionJustification);
+
+	int spacing = 0;
+	if (!stats.empty())
+	{
+		TodDrawStringWrapped(g, stats, Rect(mDescriptionRect.mX, mDescriptionRect.mY - mDescriptionScroll, mDescriptionRect.mWidth, rectHeight), descriptionFont, descriptionColor, descriptionJustification);
+		spacing = TodDrawStringWrappedHelper(g,stats,Rect(mDescriptionRect.mX, mDescriptionRect.mY - mDescriptionScroll, mDescriptionRect.mWidth, rectHeight),descriptionFont,descriptionColor,descriptionJustification,false);
+	}
+	TodDrawStringWrapped(g,description,Rect(mDescriptionRect.mX, mDescriptionRect.mY - mDescriptionScroll + spacing, mDescriptionRect.mWidth, rectHeight - spacing),descriptionFont,descriptionColor,descriptionJustification);
 	g->ClearClipRect();
 
 
@@ -463,10 +524,19 @@ void AlmanacDialog::DrawPlants(Graphics* g)
 		SexyString aCostStr = TodReplaceString(StrFormat(_S("{KEYWORD}{COST}:{STAT} %d"), aPlantDef.mSeedCost), _S("{COST}"), _S("[COST]"));
 		TodDrawStringWrapped(g, aCostStr, Rect(485 + BOARD_ADDITIONAL_WIDTH, 520 + BOARD_OFFSET_Y, 134, 50), Sexy::FONT_BRIANNETOD12, Color::White, DS_ALIGN_LEFT);
 
+		SexyString aRechargeText;
+		if (mApp->mPlayerInfo->mShowStats) {
+			float rechargeTime = aPlantDef.mRefreshTime / 100.0f;
+			if (fmod(rechargeTime, 1.0f) == 0.0f) aRechargeText = StrFormat(_S("%.0fs"), rechargeTime);
+			else  aRechargeText = StrFormat(_S("%.1fs"), rechargeTime);
+		}
+		else {
+			aRechargeText = aPlantDef.mRefreshTime == 750 ? _S("[WAIT_TIME_SHORT]") : aPlantDef.mRefreshTime == 3000 ? _S("[WAIT_TIME_LONG]") : _S("[WAIT_TIME_VERY_LONG]");
+		}
 		SexyString aRechargeStr = TodReplaceString(
-			_S("{KEYWORD}{WAIT_TIME}:{STAT} {WAIT_TIME_LENGTH}"), 
+			_S("{KEYWORD}{WAIT_TIME}:{STAT} {WAIT_TIME_LENGTH}"),
 			_S("{WAIT_TIME_LENGTH}"),
-			aPlantDef.mRefreshTime == 750 ? _S("[WAIT_TIME_SHORT]") : aPlantDef.mRefreshTime == 3000 ? _S("[WAIT_TIME_LONG]") : _S("[WAIT_TIME_VERY_LONG]")
+			aRechargeText
 		);
 		aRechargeStr = TodReplaceString(aRechargeStr, _S("{WAIT_TIME}"), _S("[WAIT_TIME]"));
 		TodDrawStringWrapped(g, aRechargeStr, Rect(600 + BOARD_ADDITIONAL_WIDTH, 520 + BOARD_OFFSET_Y, 139, 50), Sexy::FONT_BRIANNETOD12, Color(40, 50, 90), DS_ALIGN_RIGHT);
@@ -678,6 +748,9 @@ void AlmanacDialog::Draw(Graphics* g)
 
 	mCloseButton->Draw(g);
 	mIndexButton->Draw(g);
+	mFavButton->Draw(g);
+	mSkinButton->Draw(g);
+	mStatsButton->Draw(g);
 	mPlantButton->Draw(g);
 	mZombieButton->Draw(g);
 }
@@ -815,10 +888,20 @@ void AlmanacDialog::MouseUp(int x, int y, int theClickCount)
 	{
 		SetPage(ALMANAC_PAGE_ZOMBIES);
 	}
-	else if (mCloseButton->IsMouseOver())
+	else if (mCloseButton->IsMouseOver()) {
 		mApp->KillAlmanacDialog();
+		if (mApp->mSeedChooserScreen) mApp->mSeedChooserScreen->RefreshButtons();
+	}
 	else if (mIndexButton->IsMouseOver())
 		SetPage(ALMANAC_PAGE_INDEX);
+	else if (mFavButton->IsMouseOver()) {
+		mApp->mPlayerInfo->ToggleFavoriteSeed(mSelectedSeed);
+		mFavButton->mButtonImage = !mApp->mPlayerInfo->mFavoriteSeeds[mSelectedSeed] ? Sexy::IMAGE_SEEDCHOOSER_BUTTON_FAV : Sexy::IMAGE_SEEDCHOOSER_BUTTON_FAV_ACTIVE;
+	}
+	else if (mStatsButton->IsMouseOver()){
+		mApp->mPlayerInfo->ToggleStatsMode(); 
+		mStatsButton->mButtonImage = !mApp->mPlayerInfo->mShowStats ? Sexy::IMAGE_SEEDCHOOSER_BUTTON_STAT : Sexy::IMAGE_SEEDCHOOSER_BUTTON_STAT_ACTIVE;
+	}
 }
 
 void AlmanacDialog::MouseDown(int x, int y, int theClickCount)
@@ -830,7 +913,7 @@ void AlmanacDialog::MouseDown(int x, int y, int theClickCount)
 		mDescriptionSliderDragging = true;
 		return;
 	}
-	if (mPlantButton->IsMouseOver() || mCloseButton->IsMouseOver() || mIndexButton->IsMouseOver())
+	if (mPlantButton->IsMouseOver() || mCloseButton->IsMouseOver() || mIndexButton->IsMouseOver() || mFavButton->IsMouseOver() || mSkinButton->IsMouseOver() || mStatsButton->IsMouseOver())
 		mApp->PlaySample(Sexy::SOUND_TAP);
 	if (mZombieButton->IsMouseOver())
 		mApp->PlaySample(Sexy::SOUND_GRAVEBUTTON);
@@ -839,6 +922,9 @@ void AlmanacDialog::MouseDown(int x, int y, int theClickCount)
 	if (aSeedType != SeedType::SEED_NONE && aSeedType != mSelectedSeed)
 	{
 		mSelectedSeed = aSeedType;
+		mFavButton->mButtonImage = !mApp->mPlayerInfo->mFavoriteSeeds[mSelectedSeed] ? Sexy::IMAGE_SEEDCHOOSER_BUTTON_FAV : Sexy::IMAGE_SEEDCHOOSER_BUTTON_FAV_ACTIVE;
+		if (mSelectedSeed == SEED_IMITATER) mFavButton->SetDisabled(true);
+		else mFavButton->SetDisabled(false);
 		SetupPlant();
 		mApp->PlaySample(Sexy::SOUND_TAP);
 	}

@@ -52,11 +52,17 @@ private:
         SeedChooserScreen_Menu = 104,
         SeedChooserScreen_Store = 105,
         SeedChooserScreen_Imitater = 106,
-        SeedChooserScreen_Scrollbar = 107
+        SeedChooserScreen_Scrollbar = 107,
+        SeedChooserScreen_Fav = 108,
+        SeedChooserScreen_Skin = 109,
+		SeedChooserScreen_Stats = 110
     };
 
 public:
-    GameButton*             mStartButton;                       
+    GameButton*             mStartButton;
+    GameButton*             mFavButton;
+    GameButton*             mStatsButton;
+    GameButton*             mSkinButton;
     GameButton*             mRandomButton;                      
     GameButton*             mViewLawnButton;                    
     GameButton*             mStoreButton;                       
@@ -85,6 +91,8 @@ public:
 	Plant*                  mPlantPreview;
     SeedType                mPreviewSeed;
 
+    std::vector<SeedType> mOrderedSeeds;
+    bool mOrderedSeedsDirty;
 
 public:
     SeedChooserScreen();
@@ -134,6 +142,9 @@ public:
     bool                    IsOverImitater(int x, int y);
     void                    ResizeSlider();
 	void                    SetupPlantPreview();
+    void					RefreshButtons();
+    void                    RebuildOrderedSeeds();
+    int                     GetSeedVisualIndex(SeedType type);
 };
 
 #endif

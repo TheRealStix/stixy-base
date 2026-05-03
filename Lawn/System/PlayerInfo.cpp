@@ -82,6 +82,12 @@ void PlayerInfo::SyncDetails(DataSync& theSync)
 	{
 		theSync.SyncBool(mShownedAchievements[i]);
 	}
+
+	theSync.SyncBool(mShowStats);
+	for (int i = 0; i < NUM_SEEDS_IN_CHOOSER; i++)
+	{
+		theSync.SyncBool(mFavoriteSeeds[i]);
+	}
 }
 
 void PlayerInfo::LoadDetails()
@@ -163,6 +169,8 @@ void PlayerInfo::Reset()
 	mNumPottedPlants = 0;
 	memset(mEarnedAchievements, 0, sizeof(mEarnedAchievements));
 	memset(mShownedAchievements, 0, sizeof(mShownedAchievements));
+	mShowStats = false;
+	memset(mFavoriteSeeds, 0, sizeof(mFavoriteSeeds));
 }
 
 void PlayerInfo::AddCoins(int theAmount)
@@ -200,4 +208,12 @@ void PottedPlant::InitializePottedPlant(SeedType theSeedType)
 	mLastNeedFulfilledTime = 0i64;
 	mLastFertilizedTime = 0i64;
 	mLastChocolateTime = 0i64;
+}
+
+void PlayerInfo::ToggleStatsMode() {
+	mShowStats = !mShowStats;
+}
+
+void PlayerInfo::ToggleFavoriteSeed(int theIndex) {
+	mFavoriteSeeds[theIndex] = !mFavoriteSeeds[theIndex];
 }

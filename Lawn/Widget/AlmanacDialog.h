@@ -32,11 +32,17 @@ private:
 		ALMANAC_BUTTON_ZOMBIE,
 		ALMANAC_BUTTON_INDEX,
 		ALMANAC_BUTTON_NEXT,
-		ALMANAC_BUTTON_LAST
+		ALMANAC_BUTTON_LAST,
+		ALMANAC_BUTTON_FAV,
+		ALMANAC_BUTTON_SKIN,
+		ALMANAC_BUTTON_STATS
 	};
 
 public:
-	LawnApp*					mApp;					
+	LawnApp*					mApp;
+	GameButton*					mFavButton;
+	GameButton*					mSkinButton;
+	GameButton*					mStatsButton;
 	GameButton*					mCloseButton;			
 	GameButton*					mIndexButton;			
 	GameButton*					mPlantButton;			
