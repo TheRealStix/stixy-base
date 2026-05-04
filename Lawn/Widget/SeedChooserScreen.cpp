@@ -41,9 +41,11 @@ SeedChooserScreen::SeedChooserScreen()
 	mToolTipSeed = -1;
 	mScrollAmount = 0;
 	mScrollPosition = 0;
-	mPreviewSeed = SEED_PEASHOOTER;
-	mPlantPreview = nullptr;
+
 	mOrderedSeedsDirty = true;
+	RebuildOrderedSeeds();
+	mPreviewSeed = mOrderedSeeds[0];
+	mPlantPreview = nullptr;
 
 	mStartButton = new GameButton(SeedChooserScreen::SeedChooserScreen_Start);
 	mStartButton->mLabel = _S("[LETS_ROCK_BUTTON]");
