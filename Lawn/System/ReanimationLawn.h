@@ -44,7 +44,7 @@ public:
     MemoryImage*            MakeCachedMowerFrame(LawnMowerType theMowerType);
     MemoryImage*            MakeCachedZombieFrame(ZombieType theZombieType);
     /*inline*/ void         GetPlantImageSize(SeedType theSeedType, int& theOffsetX, int& theOffsetY, int& theWidth, int& theHeight);
-    void                    DrawReanimatorFrame(Graphics* g, float thePosX, float thePosY, ReanimationType theReanimationType, const char* theTrackName, DrawVariation theDrawVariation);
+    void                    DrawReanimatorFrame(Graphics* g, float thePosX, float thePosY, ReanimationType theReanimationType, const char* theTrackName, DrawVariation theDrawVariation, int theSkin);
     void                    UpdateReanimationForVariation(Reanimation* theReanim, DrawVariation theDrawVariation);
 };
 

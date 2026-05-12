@@ -3736,3 +3736,8 @@ void LawnApp::UpdateRegisterInfo()
 {
 
 }
+
+void LawnApp::InvalidatePlantPreview(SeedType theSeedType)
+{
+	mReanimatorCache->mPlantImages[(int)theSeedType] = nullptr;
+}

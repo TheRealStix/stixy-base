@@ -347,6 +347,7 @@ public:
 	void							GetAchievement(AchievementType theAchievementType);
 	void							UpdateDiscordState(SexyString theState = "");
 	bool							Is3dAccel();
+	void							InvalidatePlantPreview(SeedType theSeedType);
 };
 
 SexyString							LawnGetCurrentLevelName();

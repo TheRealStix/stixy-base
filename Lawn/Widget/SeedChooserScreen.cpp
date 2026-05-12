@@ -165,6 +165,7 @@ SeedChooserScreen::SeedChooserScreen()
 		mStoreButton->mDisabled = true;
 	}
 	if (mPreviewSeed == SEED_IMITATER) mFavButton->mDisabled = true;
+	mSkinButton->mDisabled = !PlantHasSkin(mPreviewSeed, 1);
 
 	DBG_ASSERT(mApp->GetSeedsAvailable() < NUM_SEED_TYPES);
 	memset(mChosenSeeds, 0, sizeof(mChosenSeeds));
@@ -1067,6 +1068,7 @@ void SeedChooserScreen::ClickedSeedInBank(ChosenSeed& theChosenSeed)
 	mFavButton->mButtonImage = !mApp->mPlayerInfo->mFavoriteSeeds[mPreviewSeed] ? Sexy::IMAGE_SEEDCHOOSER_BUTTON_FAV : Sexy::IMAGE_SEEDCHOOSER_BUTTON_FAV_ACTIVE;
 	if (mPreviewSeed == SEED_IMITATER) mFavButton->SetDisabled(true);
 	else mFavButton->SetDisabled(false);
+	mSkinButton->SetDisabled(!PlantHasSkin(mPreviewSeed, 1));
 	SetupPlantPreview();
 	mApp->PlaySample(Sexy::SOUND_TAP);
 }
@@ -1077,6 +1079,7 @@ void SeedChooserScreen::ClickedSeedInChooser(ChosenSeed& theChosenSeed)
 	mFavButton->mButtonImage = !mApp->mPlayerInfo->mFavoriteSeeds[mPreviewSeed] ? Sexy::IMAGE_SEEDCHOOSER_BUTTON_FAV : Sexy::IMAGE_SEEDCHOOSER_BUTTON_FAV_ACTIVE;
 	if (mPreviewSeed == SEED_IMITATER) mFavButton->SetDisabled(true);
 	else mFavButton->SetDisabled(false);
+	mSkinButton->SetDisabled(!PlantHasSkin(mPreviewSeed, 1));
 	SetupPlantPreview();
 	mApp->PlaySample(Sexy::SOUND_TAP);
 
@@ -1271,6 +1274,7 @@ void SeedChooserScreen::MouseUp(int x, int y, int theClickCount)
 			ButtonDepress(SeedChooserScreen::SeedChooserScreen_Fav); }
 		else if (mSkinButton->IsMouseOver()) {
 			mApp->mPlayerInfo->SwitchSeedCostume(mPreviewSeed);
+			mApp->InvalidatePlantPreview(mPreviewSeed);
 			mPreviewSkin = mApp->mPlayerInfo->mSeedsSkin[(int)mPreviewSeed];
 			SetupPlantPreview();
 			ButtonDepress(SeedChooserScreen::SeedChooserScreen_Skin);

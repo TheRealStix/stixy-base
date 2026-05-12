@@ -197,7 +197,21 @@ void SeedPacketDrawSeed(Graphics* g, float x, float y, SeedType theSeedType, See
 		aImage = FilterEffectGetImage(aImage, aFilterEffect);
 	}
 
-	if (aSeedType == SeedType::SEED_POTATOMINE && g->mScaleX <= 1.0f)
+	for (int i = 0; i < NUM_SEED_TYPES; i++) {
+		if (aSeedType == i && g->mScaleX <= 1.0f)
+		{
+			TodDrawImageCelScaledF(g, aImage, x, y, i, 0, g->mScaleX, g->mScaleY);
+		}
+	}
+
+	if (aSeedType > NUM_SEED_TYPES) {
+		Graphics aSeedG(*g);
+		aSeedG.mScaleX = theScale * g->mScaleX;
+		aSeedG.mScaleY = theScale * g->mScaleY;
+		Plant::DrawSeedType(&aSeedG, theSeedType, theImitaterType, DrawVariation::VARIATION_NORMAL, x + theOffsetX, y + theOffsetY);
+	}
+
+	/*if (aSeedType == SeedType::SEED_POTATOMINE && g->mScaleX <= 1.0f)
 	{
 		TodDrawImageCelScaledF(g, aImage, x, y, 0, 0, g->mScaleX, g->mScaleY);
 	}
@@ -255,7 +269,7 @@ void SeedPacketDrawSeed(Graphics* g, float x, float y, SeedType theSeedType, See
 		aSeedG.mScaleX = theScale * g->mScaleX;
 		aSeedG.mScaleY = theScale * g->mScaleY;
 		Plant::DrawSeedType(&aSeedG, theSeedType, theImitaterType, DrawVariation::VARIATION_NORMAL, x + theOffsetX, y + theOffsetY);
-	}
+	}*/
 }
 
 void DrawSeedPacket(Graphics* g, float x, float y, SeedType theSeedType, SeedType theImitaterType, float thePercentDark, int theGrayness, bool theDrawCost, bool theUseCurrentCost)

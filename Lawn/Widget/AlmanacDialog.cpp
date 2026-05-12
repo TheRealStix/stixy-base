@@ -88,9 +88,11 @@ AlmanacDialog::AlmanacDialog(LawnApp* theApp) : LawnDialog(theApp, DIALOG_ALMANA
 	mSkinButton->mButtonImage = Sexy::IMAGE_SEEDCHOOSER_BUTTON_SKIN;
 	mSkinButton->mOverImage = nullptr;
 	mSkinButton->mDownImage = nullptr;
+	mSkinButton->mDisabledImage = Sexy::IMAGE_SEEDCHOOSER_BUTTON_SKIN_DISABLED;
 	mSkinButton->mOverOverlayImage = Sexy::IMAGE_SEEDCHOOSER_BUTTON_GLOW_SMALL;
 	mSkinButton->Resize(715 + BOARD_ADDITIONAL_WIDTH, 148 + BOARD_OFFSET_Y, 40, 42);
 	mSkinButton->mParentWidget = this;
+	mSkinButton->mDisabled = !PlantHasSkin(mSelectedSeed, 1);
 
 	mStatsButton = new GameButton(AlmanacDialog::ALMANAC_BUTTON_STATS);
 	mStatsButton->mButtonImage = !mApp->mPlayerInfo->mShowStats ? Sexy::IMAGE_SEEDCHOOSER_BUTTON_STAT : Sexy::IMAGE_SEEDCHOOSER_BUTTON_STAT_ACTIVE;
@@ -906,6 +908,7 @@ void AlmanacDialog::MouseUp(int x, int y, int theClickCount)
 	}
 	else if(mSkinButton->IsMouseOver()){
 	mApp->mPlayerInfo->SwitchSeedCostume(mSelectedSeed);
+	mApp->InvalidatePlantPreview(mSelectedSeed);
 	SetupPlant();
 	}
 	else if (mStatsButton->IsMouseOver()){
@@ -935,6 +938,7 @@ void AlmanacDialog::MouseDown(int x, int y, int theClickCount)
 		mFavButton->mButtonImage = !mApp->mPlayerInfo->mFavoriteSeeds[mSelectedSeed] ? Sexy::IMAGE_SEEDCHOOSER_BUTTON_FAV : Sexy::IMAGE_SEEDCHOOSER_BUTTON_FAV_ACTIVE;
 		if (mSelectedSeed == SEED_IMITATER) mFavButton->SetDisabled(true);
 		else mFavButton->SetDisabled(false);
+		mSkinButton->SetDisabled(!PlantHasSkin(mSelectedSeed, 1));
 		SetupPlant();
 		mApp->PlaySample(Sexy::SOUND_TAP);
 	}
