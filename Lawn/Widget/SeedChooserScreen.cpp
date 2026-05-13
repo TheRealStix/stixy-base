@@ -1510,7 +1510,8 @@ void SeedChooserScreen::SetupPlantPreview() {
 
 	if (mPlantPreview != nullptr &&
 		mPlantPreview->mSeedType == mPreviewSeed &&
-		mPlantPreview->mSkinType == mPreviewSkin)
+		(!PlantHasSkin(mPreviewSeed, 1) ||
+			mPlantPreview->mSkinType == mPreviewSkin))
 		return;
 
 	float aPosX = 94;

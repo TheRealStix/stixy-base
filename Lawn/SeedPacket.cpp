@@ -197,14 +197,19 @@ void SeedPacketDrawSeed(Graphics* g, float x, float y, SeedType theSeedType, See
 		aImage = FilterEffectGetImage(aImage, aFilterEffect);
 	}
 
-	for (int i = 0; i < NUM_SEED_TYPES; i++) {
+	for (int i = 0; i < NUM_SEED_TYPES-5; i++) {
 		if (aSeedType == i && g->mScaleX <= 1.0f)
 		{
 			TodDrawImageCelScaledF(g, aImage, x, y, i, 0, g->mScaleX, g->mScaleY);
 		}
 	}
 
-	if (aSeedType > NUM_SEED_TYPES) {
+	if (aSeedType == SEED_IMITATER && g->mScaleX <= 1.0f)
+	{
+		TodDrawImageScaledF(g, IMAGE_CONSOLE_IMITATERSEED, x, y, g->mScaleX, g->mScaleY);
+	}
+
+	if (aSeedType > NUM_SEED_TYPES-4){
 		Graphics aSeedG(*g);
 		aSeedG.mScaleX = theScale * g->mScaleX;
 		aSeedG.mScaleY = theScale * g->mScaleY;

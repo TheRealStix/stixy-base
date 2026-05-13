@@ -295,6 +295,9 @@ public:
     bool                    IsAGoldMagnetAboutToSuck();
     bool                    DrawMagnetItemsOnTop();
     void                    ApplyPlantSkin(Reanimation& aBodyReanim, int theSkinType);
+    const char*             GetSkinTrackName(Reanimation& aReanim, const char* theBaseTrack);
+    const char*             GetActiveStemTrack(Reanimation* aBodyReanim);
+    const char*             GetBlinkTrack(Reanimation* aBodyReanim);
 };
 
 float                       PlantDrawHeightOffset(Board* theBoard, Plant* thePlant, SeedType theSeedType, int theCol, int theRow);
