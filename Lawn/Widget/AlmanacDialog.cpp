@@ -469,9 +469,8 @@ void AlmanacDialog::DrawPlants(Graphics* g)
 		stats = _S("{SHORTLINE}\n") + stats;
 		statsSpacing = TodDrawStringWrappedHelper(g, stats, mDescriptionRect, descriptionFont, descriptionColor, descriptionJustification, false);
 	}
-	else{
-	description = _S("{SHORTLINE}\n") + description;
-	}
+	else description = _S("{SHORTLINE}\n") + description;
+	if (mSelectedSeed == SEED_IMITATER && mApp->mPlayerInfo->mShowStats) description = _S("{SHORTLINE}\n") + description;
 	int descSpacing = TodDrawStringWrappedHelper(g, description, mDescriptionRect, descriptionFont, descriptionColor, descriptionJustification, false);
 	int totalSpacing = statsSpacing + descSpacing;
 

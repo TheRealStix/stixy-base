@@ -140,6 +140,7 @@ void Plant::PlantInitialize(int theGridX, int theGridY, SeedType theSeedType, Se
     {
         float aOffsetY = PlantDrawHeightOffset(mBoard, this, mSeedType, mPlantCol, mRow);
         aBodyReanim = mApp->AddReanimation(0.0f, aOffsetY, mRenderOrder + 1, aPlantDef.mReanimationType);
+        ApplyPlantSkin(*aBodyReanim, mSkinType);
         aBodyReanim->mLoopType = ReanimLoopType::REANIM_LOOP;
         aBodyReanim->mAnimRate = RandRangeFloat(10.0f, 15.0f);
 
@@ -434,7 +435,7 @@ void Plant::PlantInitialize(int theGridX, int theGridY, SeedType theSeedType, Se
         break;
     case SeedType::SEED_KERNELPULT:
         TOD_ASSERT(aBodyReanim);
-        aBodyReanim->AssignRenderGroupToPrefix("Cornpult_butter", RENDER_GROUP_HIDDEN);
+        aBodyReanim->AssignRenderGroupToPrefix(GetSkinAnimTrack(aBodyReanim,"Cornpult_butter"), RENDER_GROUP_HIDDEN);
         break;
     case SeedType::SEED_MAGNETSHROOM:
         TOD_ASSERT(aBodyReanim);
@@ -463,10 +464,6 @@ void Plant::PlantInitialize(int theGridX, int theGridY, SeedType theSeedType, Se
     case SeedType::SEED_TANGLEKELP:
         TOD_ASSERT(aBodyReanim);
         aBodyReanim->SetTruncateDisappearingFrames();
-    }
-    if (aBodyReanim)
-    {
-        ApplyPlantSkin(*aBodyReanim, mSkinType);
     }
     if ((mApp->mGameMode == GameMode::GAMEMODE_CHALLENGE_BIG_TIME) &&
         (theSeedType == SeedType::SEED_WALLNUT || theSeedType == SeedType::SEED_SUNFLOWER || theSeedType == SeedType::SEED_MARIGOLD))
@@ -782,8 +779,8 @@ bool Plant::FindTargetAndFire(int theRow, PlantWeapon thePlantWeapon)
             if (Sexy::Rand(4) == 0)
             {
                 aBodyReanim = mApp->ReanimationGet(mBodyReanimID);
-                aBodyReanim->AssignRenderGroupToPrefix("Cornpult_butter", RENDER_GROUP_NORMAL);
-                aBodyReanim->AssignRenderGroupToPrefix("Cornpult_kernal", RENDER_GROUP_HIDDEN);
+                aBodyReanim->AssignRenderGroupToPrefix(GetSkinAnimTrack(aBodyReanim, "Cornpult_butter"), RENDER_GROUP_NORMAL);
+                aBodyReanim->AssignRenderGroupToPrefix(GetSkinAnimTrack(aBodyReanim, "Cornpult_kernal"), RENDER_GROUP_HIDDEN);
                 mState = PlantState::STATE_KERNELPULT_BUTTER;
             }
 
@@ -3272,8 +3269,8 @@ void Plant::UpdateShooting()
             if (mState == PlantState::STATE_KERNELPULT_BUTTER)
             {
                 Reanimation* aBodyReanim = mApp->ReanimationGet(mBodyReanimID);
-                aBodyReanim->AssignRenderGroupToPrefix("Cornpult_butter", RENDER_GROUP_HIDDEN);
-                aBodyReanim->AssignRenderGroupToPrefix("Cornpult_kernal", RENDER_GROUP_NORMAL);
+                aBodyReanim->AssignRenderGroupToPrefix(GetSkinAnimTrack(aBodyReanim, "Cornpult_butter"), RENDER_GROUP_HIDDEN);
+                aBodyReanim->AssignRenderGroupToPrefix(GetSkinAnimTrack(aBodyReanim, "Cornpult_kernal"), RENDER_GROUP_NORMAL);
                 mState = PlantState::STATE_NOTREADY;
                 aPlantWeapon = PlantWeapon::WEAPON_SECONDARY;
             }

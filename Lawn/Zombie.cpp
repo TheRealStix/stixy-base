@@ -600,10 +600,6 @@ void Zombie::ZombieInitialize(int theRow, ZombieType theType, bool theVariant, Z
         break;
 
     case ZombieType::ZOMBIE_IMP:  
-        if (!IsOnBoard())
-        {
-            PlayZombieReanim("anim_walk", ReanimLoopType::REANIM_LOOP, 0, 12.0f);
-        }
         if (mApp->IsIZombieLevel())
         {
             mBodyHealth = 70;
