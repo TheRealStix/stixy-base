@@ -191,7 +191,7 @@ Board::Board(LawnApp* theApp)
 		mStoreButton->mButtonImage = IMAGE_ZENSHOPBUTTON;
 		mStoreButton->mOverImage = IMAGE_ZENSHOPBUTTON_HIGHLIGHT;
 		mStoreButton->mDownImage = IMAGE_ZENSHOPBUTTON_HIGHLIGHT;
-		mStoreButton->Resize(678 + aButtonOffsetX, 44, IMAGE_ZENSHOPBUTTON->mWidth, 40);
+		mStoreButton->Resize(678 + aButtonOffsetX, 50, IMAGE_ZENSHOPBUTTON->mWidth, 40);
 		mStoreButton->mParentWidget = this;
 	}
 	else
@@ -7293,12 +7293,12 @@ void Board::DrawTopRightUI(Graphics* g)
 		int aButtonOffsetX = BOARD_ADDITIONAL_WIDTH * 2;
 		if (mChallenge->mChallengeState == STATECHALLENGE_ZEN_FADING)
 		{
-			mMenuButton->mY = TodAnimateCurve(50, 0, mChallenge->mChallengeStateCounter, -10, -50, TodCurves::CURVE_EASE_IN_OUT);
+			mMenuButton->mY = TodAnimateCurve(50, 0, mChallenge->mChallengeStateCounter, 1, -50, TodCurves::CURVE_EASE_IN_OUT);
 			mStoreButton->mX = TodAnimateCurve(50, 0, mChallenge->mChallengeStateCounter, 678 + aButtonOffsetX, BOARD_WIDTH, TodCurves::CURVE_EASE_IN_OUT);
 		}
 		else
 		{
-			mMenuButton->mY = -10;
+			mMenuButton->mY = 1;
 			mStoreButton->mX = 678 + aButtonOffsetX;
 		}
 	}
