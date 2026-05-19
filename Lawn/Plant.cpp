@@ -3005,9 +3005,9 @@ void Plant::DoBlink()
 
     EndBlink();
     Reanimation* aBodyReanim = mApp->ReanimationTryToGet(mBodyReanimID);
-	ApplyPlantSkin(*aBodyReanim, mSkinType);
     if (aBodyReanim == nullptr)
         return;
+    ApplyPlantSkin(*aBodyReanim, mSkinType);
 
     if ((mSeedType == SeedType::SEED_TALLNUT && aBodyReanim->GetImageOverride("anim_idle") == IMAGE_REANIM_TALLNUT_CRACKED2) || 
         (mSeedType == SeedType::SEED_GARLIC && aBodyReanim->GetImageOverride("anim_face") == IMAGE_REANIM_GARLIC_BODY3))
