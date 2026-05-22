@@ -5217,31 +5217,68 @@ bool PlantHasSkin(SeedType theSeedType, int theSkinIndex)
 
 void Plant::ApplyPlantSkin(Reanimation& aReanim, int theSkin)
 {
-    for (int i = 0; i < aReanim.mDefinition->mTrackCount; i++)
+    // Guard
+    if (aReanim.mDefinition == nullptr)
+        return;
+
+    ReanimatorDefinition* def = aReanim.mDefinition;
+
+    // Collect base track names referenced by any skin_* entries.
+    // We will only restore those base tracks (to avoid stomping unrelated
+    // render-group states such as temporary hides done via AssignRenderGroupToPrefix).
+    std::vector<const char*> baseTracks;
+    baseTracks.reserve(def->mTrackCount);
+
+    for (int i = 0; i < def->mTrackCount; ++i)
     {
-        ReanimatorTrack& aTrack = aReanim.mDefinition->mTracks[i];
-        aReanim.AssignRenderGroupToTrack(aTrack.mName,RENDER_GROUP_NORMAL);
+        const char* name = def->mTracks[i].mName;
+        if (strncmp(name, "skin_", 5) != 0)
+            continue;
+
+        const char* aSecondUnderscore = strchr(name + 5, '_');
+        if (aSecondUnderscore == nullptr)
+            continue;
+
+        const char* baseName = aSecondUnderscore + 1;
+
+        bool found = false;
+        for (const char* existing : baseTracks)
+        {
+            if (strcmp(existing, baseName) == 0)
+            {
+                found = true;
+                break;
+            }
+        }
+        if (!found)
+            baseTracks.push_back(baseName);
     }
-
-    for (int i = 0; i < aReanim.mDefinition->mTrackCount; i++)
+    for (const char* base : baseTracks)
     {
-        ReanimatorTrack& aTrack = aReanim.mDefinition->mTracks[i];
-
-        if (strncmp(aTrack.mName, "skin_", 5) != 0) continue;
+        aReanim.AssignRenderGroupToTrack(base, RENDER_GROUP_NORMAL);
+    }
+    for (int i = 0; i < def->mTrackCount; ++i)
+    {
+        ReanimatorTrack& aTrack = def->mTracks[i];
+        if (strncmp(aTrack.mName, "skin_", 5) != 0)
+            continue;
 
         int aSkinIndex = sexyatoi(aTrack.mName + 5);
-
         const char* aSecondUnderscore = strchr(aTrack.mName + 5, '_');
-
-        if (aSecondUnderscore == nullptr)continue;
-        aSecondUnderscore++;
+        if (aSecondUnderscore == nullptr)
+            continue;
+        const char* baseName = aSecondUnderscore + 1;
 
         if (aSkinIndex == theSkin)
         {
-            if (aReanim.TrackExists(aSecondUnderscore)) aReanim.AssignRenderGroupToTrack(aSecondUnderscore,RENDER_GROUP_HIDDEN);
-            aReanim.AssignRenderGroupToTrack(aTrack.mName,RENDER_GROUP_NORMAL);
+            if (aReanim.TrackExists(baseName))
+                aReanim.AssignRenderGroupToTrack(baseName, RENDER_GROUP_HIDDEN);
+            aReanim.AssignRenderGroupToTrack(aTrack.mName, RENDER_GROUP_NORMAL);
         }
-        else aReanim.AssignRenderGroupToTrack(aTrack.mName,RENDER_GROUP_HIDDEN);
+        else
+        {
+            aReanim.AssignRenderGroupToTrack(aTrack.mName, RENDER_GROUP_HIDDEN);
+        }
     }
 }
 
