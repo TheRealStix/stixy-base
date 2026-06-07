@@ -1,8 +1,12 @@
 # WHAT THIS ADDS:
 -pvz 2 styled cys screen
+
 -favourite seeds button and system
+
 -skin system
+
 -advanced almanac descriptions toggle
+
 
 If you use this shit maybe credit me if you feel like it idk
 
