@@ -1,3 +1,11 @@
+# WHAT THIS ADDS:
+-pvz 2 styled cys screen
+-favourite seeds button and system
+-skin system
+-advanced almanac descriptions toggle
+
+If you use this shit maybe credit me if you feel like it idk
+
 # QEWide-Tweaks
 An edit of Quality Enhanced Wide that addresses and fixes many of the bugs that that decompilation (and the ones it was based off of) brought.
 ## Original Credits:
